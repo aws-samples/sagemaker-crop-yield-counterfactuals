@@ -1,0 +1,15 @@
+causalnex
+graphviz
+geopandas
+dataframe_image
+traitlets
+pygments
+spyndex
+pydot
+s3fs
+cmapy
+shap
+xgboost
+rtree
+ipywidgets
+protobuf==3.20.2
