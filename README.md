@@ -9,7 +9,7 @@
 
 ### Input Data
 
-* The simulated dataset contains polygons of the 10x10 km cells that divide the state of Illinois. The data includes the South, Central, and North regions.
+* The simulated dataset contains polygons of the 10 km x 10 km cells that divide the state of Illinois. The data includes the South, Central, and North regions.
 * The ground-level observations are complemented with geospatial data, obtained by collecting multi-spectral satellite imagery of consecutive visits corresponding to the following stages of the *corn* phenology cycle:
 
 <table align="center">
@@ -40,13 +40,13 @@
     </td>
   </tr>
   <tr>
-    <td>$\color{green}{\text{green polygons:}}$ Counties</td>
+    <td>green polygons: counties</td>
   </tr>
   <tr>
-    <td>$\color{orange}{\text{orange grid:}}$ 10 x 10 km Cells</td>
+    <td>orange grid: 10 km x 10 km cells</td>
   </tr>
   <tr>
-    <td>$\color{CornflowerBlue}{\text{coloured}}$ $\color{red}{\text{squares:}}$ Satellite Tile Grids</td>
+    <td>large squares grid: 100 km x 100 km Sentinel-2 UTM tiling grid</td>
   </tr>
 </table>
 
@@ -57,8 +57,8 @@
 
 ### Model outputs
 
-* Corn yield estimates (10x10 km cells)
-* Counterfactual and interventional analysis of corn response to nitrogen (10x10 km cells)
+* Corn yield estimates (10 km x 10 km cells)
+* Counterfactual and interventional analysis of corn response to nitrogen (10 km x 10 km cells)
 
 ### Algorithms
 
@@ -86,7 +86,7 @@
 * `SageMaker Processing` is used to:
   * download the [crop masks](https://nassgeodata.gmu.edu/CropScape/)
   * warp (incl. re-projection) the spectral indices and the crop masks
-  * compute zonal statistics for the polygons of interest (Counties divided by 10 x 10 km cells)
+  * compute zonal statistics for the polygons of interest (Counties divided by 10 km x 10 km cells)
 
 #### Outputs
 
@@ -119,7 +119,7 @@ A step-by-step `Exploratory Data Analysis` includes:
     * Continuous features are discretised based on the split thresholds of a decision tree regressor (crop yield is used as a target).
     * Once the graph has been determined, the conditional probability distributions of the variables are learned from the data, using Bayesian parameter estimation.
   * Domain-specific variables are used throughout the solution. For more information, reference the [vocabulary](https://www.sciencedirect.com/science/article/pii/S2352340921010283#tbl0001) for the ground-level variables and the [guide](https://crops.extension.iastate.edu/encyclopedia/corn-growth-stages) for identifying the corn growth stages.
-  * Nodes starting with `mean_{spectral vegetation indices}_corn_{isoweek}` are corn growth indicators extracted from the satellite multi-spectral imagery, representing the 10x10 km cell mean value of the following spectral vegetation indices (for each satellite visit):
+  * Nodes starting with `mean_{spectral vegetation indices}_corn_{isoweek}` are corn growth indicators extracted from the satellite multi-spectral imagery, representing the 10 km x 10 km cell mean value of the following spectral vegetation indices (for each satellite visit):
     * `EVI2` : Two-Band Enhanced Vegetation Index
     * `NDMI` : Normalized Difference Moisture Index
     * `NDVI` : Normalized Difference Vegetation Index
@@ -149,7 +149,7 @@ To run this JumpStart 1P Solution and have the infrastructure deployed to your A
   * `src-geospatial/`: Contains the geospatial processing scripts.
     * `download_crop_mask.py`: Downloads the crop masks from USDA.
     * `geospatial_processing.py`: Uses SageMaker Geospatial ML to download and process satellite images.
-    * `feature_extraction.py`: Custom code to compute Zonal Statistics (10x10 km crop-masked cells).
+    * `feature_extraction.py`: Custom code to compute Zonal Statistics (10 km x 10 km crop-masked cells).
     * `requirements.txt`: Dependencies for the geospatial processing.
     
   * `utils/`: Contains utility scripts
@@ -183,7 +183,7 @@ Crop masks are obtained from the [NASS geodata services](https://nassgeodata.gmu
 ## Costs
 
 You are responsible for the cost of the AWS services used while running this solution.
-* Geospatial processing using Amazon SageMaker Processing and SageMaker Geospatial Services jobs is `~$1`.
+* Geospatial processing using Amazon SageMaker Processing and SageMaker Geospatial Services is `~$1`.
 * Hosting the model using an Amazon SageMaker Endpoint on an ml.m5.2xlarge instance is `$0.461` per hour.
 * Using Amazon SageMaker Studio Notebooks with an ml.m5.large instance is `$0.115` per hour or `$0.7364` per hour with an ml.g4dn.xlarge instance. 
 
@@ -193,11 +193,12 @@ You are responsible for the cost of the AWS services used while running this sol
 * [Amazon SageMaker Getting Started](https://aws.amazon.com/sagemaker/getting-started/)
 * [Amazon SageMaker Developer Guide](https://docs.aws.amazon.com/sagemaker/latest/dg/whatis.html)
 * [Amazon SageMaker Python SDK Documentation](https://sagemaker.readthedocs.io/en/stable/)
-* [AWS CloudFormation User Guide](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/Welcome.html)
+* [Amazon SageMaker Geospatial Capabilities](https://docs.aws.amazon.com/sagemaker/latest/dg/geospatial.html)
+* [Amazon SageMaker Asynchronous Inference](https://docs.aws.amazon.com/sagemaker/latest/dg/async-inference.html)
 
-## Author(s)
+## Authors
 
-* [Paul Barna](linkedin.com/in/paul-otniel-barna-05a02296) - Senior Data Scientist, ML Prototyping @aws
+* [Paul Barna](https://www.linkedin.com/in/paul-otniel-barna-05a02296) - Senior Data Scientist, ML Prototyping @aws
 * [JJ Lim](https://github.com/jinyoung-lim) - Software Development Engineer, AI Platforms @aws
 
 ## License
