@@ -2,7 +2,7 @@
 
 * This solution proposes a causal inference framework using Bayesian networks to represent causal dependencies and draw causal conclusions based on satellite imagery and [simulated ground-level observations](https://www.sciencedirect.com/science/article/pii/S2352340921010283#tbl0001). The case study is the causal relationship between Nitrogen-based fertiliser application and corn crop yields. 
 * In addtion, this solution can be used as a template for building gridded crop models where Nitrogen fertiliser management and environmental policy analysis are conducted.
-* The satellite imagery is processed using the [Amazon SageMaker geospatial capabilities](https://aws.amazon.com/sagemaker/geospatial/) and custom-built functionalities implemented with [Amazon SageMaker Processing](https://docs.aws.amazon.com/sagemaker/latest/dg/processing-job.html). The causal inference engine is deployed with the [Amazon SageMaker Asynchronous Inference](https://docs.aws.amazon.com/sagemaker/latest/dg/async-inference.html) capability.
+* The satellite imagery is processed using [Amazon SageMaker geospatial capabilities](https://aws.amazon.com/sagemaker/geospatial/) and custom-built functionalities implemented with [Amazon SageMaker Processing](https://docs.aws.amazon.com/sagemaker/latest/dg/processing-job.html). The causal inference engine is deployed with [Amazon SageMaker Asynchronous Inference](https://docs.aws.amazon.com/sagemaker/latest/dg/async-inference.html).
 
 ## Overview
 
