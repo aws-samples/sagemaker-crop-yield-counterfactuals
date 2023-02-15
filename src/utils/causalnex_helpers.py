@@ -1,6 +1,5 @@
 import bisect
 from typing import Dict
-
 import numpy as np
 
 
@@ -61,7 +60,7 @@ def generate_dag_constraints(mappping):
         (node_i, node_j)
         for idx, node_i in nodes_matrix
         for idy, node_j in nodes_matrix
-        if idy > idx + 1 and node_i != node_j
+        if idy > idx + 2 and node_i != node_j
     ]
 
     tabu_edges.extend(tabu_edges_forwards)
@@ -80,6 +79,24 @@ def generate_dag_constraints(mappping):
     ]
 
     tabu_edges.extend(tabu_edges_atmospheric)
+    
+    # disregard links between soil nitrogen and water stress variables
+    
+    soil_nodes = [
+        node for node in nodes_list if node.startswith("n_")
+    ]
+    
+    water_stress_nodes = [
+        node for node in nodes_list if node.endswith("_fw")
+    ]
+    tabu_edges_soil_water = [
+        (node_i, node_j)
+        for node_i in soil_nodes
+        for node_j in water_stress_nodes
+        if node_i != node_j
+    ]
+
+    tabu_edges.extend(tabu_edges_soil_water)
 
     # no node can inform on atmospheric variables
     tabu_edges_atmospheric_rest = [
@@ -94,9 +111,6 @@ def generate_dag_constraints(mappping):
     tabu_edges = list(set(tabu_edges))
 
     return (tabu_edges, tabu_child, tabu_parents, nodes_list, nodes_matrix)
-
-
-import bisect
 
 
 def discretiser_inverse_transform(
