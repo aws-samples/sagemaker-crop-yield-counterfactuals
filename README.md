@@ -1,15 +1,15 @@
 # Crop-Yield-Counterfactuals
 
-* This solution proposes a causal inference framework using Bayesian networks to represent causal dependencies and draw causal conclusions based on satellite imagery and [simulated ground-level observations](https://www.sciencedirect.com/science/article/pii/S2352340921010283#tbl0001). The case study is the causal relationship between Nitrogen-based fertiliser application and corn crop yields. 
+* This solution proposes a causal inference framework using Bayesian networks to represent causal dependencies and draw causal conclusions based on observed satellite imagery and experimental data in the form of simulated weather and soil conditions. The [case study](https://www.sciencedirect.com/science/article/pii/S2352340921010283) is the causal relationship between Nitrogen-based fertiliser application and corn crop yields. 
 * In addition, this solution can be used as a template for building gridded crop models where Nitrogen fertiliser management and environmental policy analysis are conducted.
-* The satellite imagery is processed using [Amazon SageMaker geospatial capabilities](https://aws.amazon.com/sagemaker/geospatial/) and custom-built functionalities implemented with [Amazon SageMaker Processing](https://docs.aws.amazon.com/sagemaker/latest/dg/processing-job.html). The causal inference engine is deployed with [Amazon SageMaker Asynchronous Inference](https://docs.aws.amazon.com/sagemaker/latest/dg/async-inference.html).
+* The satellite imagery is processed using [Amazon SageMaker geospatial capabilities](https://aws.amazon.com/sagemaker/geospatial/) and [Amazon SageMaker Processing](https://docs.aws.amazon.com/sagemaker/latest/dg/processing-job.html) operations. The causal inference engine is deployed with [Amazon SageMaker Asynchronous Inference](https://docs.aws.amazon.com/sagemaker/latest/dg/async-inference.html).
 
 ## Overview
 
 ### Input Data
 
-* The simulated dataset contains polygons of the 10 km x 10 km cells that divide the state of Illinois. The data includes the South, Central, and North regions.
-* The ground-level observations are complemented with geospatial data, obtained by collecting multi-spectral satellite imagery of consecutive visits corresponding to the following stages of the *corn* phenology cycle:
+* The simulated field experiments are mapped to polygons of 10 km x 10 km cells that divide the state of Illinois. The data includes the South, Central, and North regions.
+* This solution combines simulated field experiments with observational satellite data. The satellite imagery of consecutive visits corresponds to the following stages of the *corn* phenology cycle:
 
 <table align="center">
   <tr>
@@ -29,7 +29,7 @@
 </table>
 
   
-* The time range and the region of interest are user-defined. Within the provided [demo notebook](src/demo.ipynb), the Illinois *Central* region is selected for estimating the corn yield as well as studying the corn response to nitrogen using counterfactual and interventional logic.
+* The time range and the region of interest are user-defined. Within the provided [demo notebook](src/demo.ipynb), the Illinois *Central* region is selected for studying the corn response to nitrogen using counterfactual and interventional logic.
 
 
 <table align="center">
@@ -51,13 +51,12 @@
 
 ### Data preparation
 
-*  If you want to prepare your own dataset with ground-level observations, please follow the approach described within the [Simulated dataset of corn response to nitrogen over thousands of fields and multiple years in Illinois](https://www.sciencedirect.com/science/article/pii/S2352340921010283) article. The simulated dataset used in this study was generated with the [APSIM](https://www.apsim.info/) simulator.
+* To prepare your own database with simulated field experiments, please follow the approach described within the [Simulated dataset of corn response to nitrogen over thousands of fields and multiple years in Illinois](https://www.sciencedirect.com/science/article/pii/S2352340921010283) article. The simulated dataset used in this study was generated with the [APSIM](https://www.apsim.info/) simulator.
 
 
 ### Model outputs
 
-* Corn yield estimates (10 km x 10 km cells)
-* Counterfactual and interventional analysis of corn response to nitrogen (10 km x 10 km cells)
+* Counterfactual analysis of corn response to nitrogen (for each 10 km x 10 km cell)
 
 ### Algorithms
 
@@ -74,62 +73,7 @@
 
 ## Solution Details
 
-### Geospatial Processing
-
-* `SageMaker Geospatial ML` is used to:
-  * download the multi-spectral satellite imagery
-  * filter and remove clouds
-  * create geomosaics from multiple satellite visits within a user-defined time range and region of interest
-  * compute custom [spectral vegetation indices](https://github.com/awesome-spectral-indices/awesome-spectral-indices#vegetation)
-  * resample the geotiffs
-* `SageMaker Processing` is used to:
-  * download the [crop masks](https://nassgeodata.gmu.edu/CropScape/)
-  * warp (incl. re-projection) the spectral indices and the crop masks
-  * compute zonal statistics for the polygons of interest (Counties divided by 10 km x 10 km cells)
-
-#### Outputs
-
-  `RGB channels`
-  <p align="left">
-    <img src="docs/rgb.png" width="400" height="600">
-  </figure>
-
-  `Spectral Vegetation Indices (SVIs)`
-  <p align="left">
-    <img src="docs/spectral_masked.png" width="500" height="500">
-  </figure>
-  
-### Feature engineering
-
-A step-by-step `Exploratory Data Analysis` includes:
-  * multicollinearity analysis
-  * variation inflation factor analysis
-  * global feature importance using [SHAP](https://shap.readthedocs.io/en/latest/index.html) analysis
-
-### Causal Inference
-
-`Background`: Field experts and practitioners are commonly interested in developing frameworks where asking questions is fundamental to developing impactful interventions. Causal inference from observational data is a hot topic, in the absence of experimental data. Structural causal models where causal dependencies are represented using graphical models, particularly Bayesian Networks, are popular approaches. The graphical models incorporate both data-driven and human inputs. Asynchronous inference engines are then used to query the model and support counterfactual and interventional logic.
-
-
-`Setting`:
-  * The crop phenology graph (DAG) is a collection of nodes and edges, where the `nodes` are indicators of crop growth, soil characteristics, atmospheric conditions, and the `edges` between them represent temporal-causal relationships. `Parent nodes` are the field-related parameters (including the day of sowing and area planted) and the `child nodes` are the yield, nitrogen uptake, and nitrogen leaching targets.
-  * A crop phenology `DAG (Directed Acyclic Graph)` structure is learned from data, with constraints designed using domain knowledge:
-    * The graphical model incorporates crop phenology dynamics extracted from ground-level indicators and spectral vegetation indices. 
-    * Continuous features are discretised based on the split thresholds of a decision tree regressor (crop yield is used as a target).
-    * Once the graph has been determined, the conditional probability distributions of the variables are learned from the data, using Bayesian parameter estimation.
-  * Domain-specific variables are used throughout the solution. For more information, reference the [vocabulary](https://www.sciencedirect.com/science/article/pii/S2352340921010283#tbl0001) for the ground-level variables and the [guide](https://crops.extension.iastate.edu/encyclopedia/corn-growth-stages) for identifying the corn growth stages.
-  * Nodes starting with `mean_{spectral vegetation indices}_corn_{isoweek}` are corn growth indicators extracted from the satellite multi-spectral imagery, representing the 10 km x 10 km cell mean value of the following spectral vegetation indices (for each satellite visit):
-    * `EVI2` : Two-Band Enhanced Vegetation Index
-    * `NDMI` : Normalized Difference Moisture Index
-    * `NDVI` : Normalized Difference Vegetation Index
-  <p align="central">
-  <img src="docs/dag.png" alt="DAG">
-  </p>
-  
-  * Corn response to nitrogen is studied by querying the model and making interventions.
-    * First, the solution runs inference in order to gain insights about different response curves.
-    * Next, the solution uses the inference insights and observation of evidence in order to take actions for the amount of nitrogen added as fertilizer, while observing the effect of these actions on the crop yield, the nitrogen leaching, and the total nitrogen uptake.
-
+Please refer to the following blog post: [Generate a counterfactual analysis of corn response to nitrogen with Amazon SageMaker JumpStart solutions](https://aws.amazon.com/blogs/machine-learning/generate-a-counterfactual-analysis-of-corn-response-to-nitrogen-with-amazon-sagemaker-jumpstart-solutions/)
 
 ## Getting Started
 
@@ -162,7 +106,7 @@ To run this JumpStart 1P Solution and have the infrastructure deployed to your A
     * `inference.py`: The inference script.
     * `requirements.txt`: Dependencies required for the inference engine.
   
-  * `demo.ipynb`: Demo notebook to quickly compute counterfactuals from the demo endpoint.
+  * `demo.ipynb`:  Notebook to quickly compute counterfactuals from the demo endpoint.
 
 
 
