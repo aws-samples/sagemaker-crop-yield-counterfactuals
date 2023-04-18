@@ -1,8 +1,8 @@
 # Crop-Yield-Counterfactuals
 
-* This solution proposes a causal inference framework using Bayesian networks to represent causal dependencies and draw causal conclusions based on observed satellite imagery and experimental data in the form of simulated weather and soil conditions. The [case study](https://www.sciencedirect.com/science/article/pii/S2352340921010283) is the causal relationship between Nitrogen-based fertiliser application and corn crop yields. 
+* This solution proposes a causal inference framework using Bayesian networks to represent causal dependencies and draw causal conclusions based on observed satellite imagery and simulated field experiments (weather and soil conditions). The [case study](https://www.sciencedirect.com/science/article/pii/S2352340921010283) is the causal relationship between Nitrogen-based fertiliser application and corn crop yields. 
 * In addition, this solution can be used as a template for building gridded crop models where Nitrogen fertiliser management and environmental policy analysis are conducted.
-* The satellite imagery is processed using [Amazon SageMaker geospatial capabilities](https://aws.amazon.com/sagemaker/geospatial/) and [Amazon SageMaker Processing](https://docs.aws.amazon.com/sagemaker/latest/dg/processing-job.html) operations. The causal inference engine is deployed with [Amazon SageMaker Asynchronous Inference](https://docs.aws.amazon.com/sagemaker/latest/dg/async-inference.html).
+* The satellite imagery is processed using [Amazon SageMaker geospatial capabilities](https://aws.amazon.com/sagemaker/geospatial/) and enriched with custom-built [Amazon SageMaker Processing](https://docs.aws.amazon.com/sagemaker/latest/dg/processing-job.html) operations. The causal inference engine is deployed with [Amazon SageMaker Asynchronous Inference](https://docs.aws.amazon.com/sagemaker/latest/dg/async-inference.html).
 * For a technical how-to, please refer to the following AWS blog post:
   * [Generate a counterfactual analysis of corn response to nitrogen with Amazon SageMaker JumpStart solutions](https://aws.amazon.com/blogs/machine-learning/generate-a-counterfactual-analysis-of-corn-response-to-nitrogen-with-amazon-sagemaker-jumpstart-solutions/)
 
@@ -69,13 +69,13 @@
 ### Data Flow
 
  * [00 Geospatial Processing.ipynb](src/00%20Geospatial%20Processing.ipynb): Performs `Geospatial processing` and cell-level `zonal statistics` of crop-masked multi-spectral vegetation indices.
- * [01 Feature Engineering.ipynb](src/01%20Feature%20Engineering.ipynb): A step-by-step guide on how to ingest custom datasets of `ground-level observations`, how to run variance inflation factor and multicollinearity analysis, and how to use global feature importance with temporal awareness for selecting a set of relevant variables at each stage of the crop phenology cycle.
- * [02 Causal Model.ipynb](src/02%20Causal%20Model.ipynb): A guided study of custom-built `Causal Inference with Bayesian Networks`, which incorporates data-driven and human inputs for learning a DAG (Directed Acyclic Graph) structure with constraints. It includes an Inference Engine for generating yield estimates, as well as inferring the corn response to nitrogen, given interventions anywhere within the graph.
+ * [01 Feature Engineering.ipynb](src/01%20Feature%20Engineering.ipynb): A step-by-step guide on how to ingest a database of simulated field experiments, how to run variance inflation factor and multicollinearity analysis, and how to use global feature importance with temporal awareness for selecting a set of relevant variables at each stage of the crop phenology cycle.
+ * [02 Causal Model.ipynb](src/02%20Causal%20Model.ipynb): A guided study of custom-built `Causal Inference with Bayesian Networks`, which incorporates data-driven and human inputs for learning a structural causal model (SCM) with constraints. It includes an Inference Engine that provides methods to query marginals based on observations and to make interventions on the Bayesian Network. This includes a visualization method to study the causal relationship between Nitrogen-based fertiliser application and corn crop yields.
 
 
 ## Solution Details
 
-Please refer to the following AWS blog post: `
+For a technical how-to, please refer to the following AWS blog post: `
 * [Generate a counterfactual analysis of corn response to nitrogen with Amazon SageMaker JumpStart solutions](https://aws.amazon.com/blogs/machine-learning/generate-a-counterfactual-analysis-of-corn-response-to-nitrogen-with-amazon-sagemaker-jumpstart-solutions/)
 
 ## Getting Started
